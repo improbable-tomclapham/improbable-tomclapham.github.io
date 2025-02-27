@@ -26849,44 +26849,57 @@ var websocketProvider = createCommonjsModule(function (module, exports) {
             };
             _this.websocket.onmessage = function (messageEvent) {
                 var data = messageEvent.data;
-                var result = JSON.parse(data);
-                if (result.id != null) {
-                    var id = String(result.id);
-                    var request = _this._requests[id];
-                    delete _this._requests[id];
-                    if (result.result !== undefined) {
-                        request.callback(null, result.result);
-                        _this.emit("debug", {
-                            action: "response",
-                            request: JSON.parse(request.payload),
-                            response: result.result,
-                            provider: _this
-                        })
-                    } else {
-                        var error = null;
-                        if (result.error) {
-                            error = new Error(result.error.message || "unknown error");
-                            (0, lib$3.defineReadOnly)(error, "code", result.error.code || null);
-                            (0, lib$3.defineReadOnly)(error, "response", data)
+
+                //HACK
+                function handleResult(text) {
+                    console.log(text);
+                    var result = JSON.parse(text);
+                    if (result.id != null) {
+                        var id = String(result.id);
+                        var request = _this._requests[id];
+                        delete _this._requests[id];
+                        if (result.result !== undefined) {
+                            request.callback(null, result.result);
+                            _this.emit("debug", {
+                                action: "response",
+                                request: JSON.parse(request.payload),
+                                response: result.result,
+                                provider: _this
+                            })
                         } else {
-                            error = new Error("unknown error")
+                            var error = null;
+                            if (result.error) {
+                                error = new Error(result.error.message || "unknown error");
+                                (0, lib$3.defineReadOnly)(error, "code", result.error.code || null);
+                                (0, lib$3.defineReadOnly)(error, "response", data)
+                            } else {
+                                error = new Error("unknown error")
+                            }
+                            request.callback(error, undefined);
+                            _this.emit("debug", {
+                                action: "response",
+                                error: error,
+                                request: JSON.parse(request.payload),
+                                provider: _this
+                            })
                         }
-                        request.callback(error, undefined);
-                        _this.emit("debug", {
-                            action: "response",
-                            error: error,
-                            request: JSON.parse(request.payload),
-                            provider: _this
-                        })
+                    } else if (result.method === "eth_subscription") {
+                        var sub = _this._subs[result.params.subscription];
+                        if (sub) {
+                            sub.processFunc(result.params.result)
+                        }
+                    } else {
+                        console.warn("this should not happen")
                     }
-                } else if (result.method === "eth_subscription") {
-                    var sub = _this._subs[result.params.subscription];
-                    if (sub) {
-                        sub.processFunc(result.params.result)
-                    }
-                } else {
-                    console.warn("this should not happen")
                 }
+
+                if (data instanceof Blob) {
+                    data.text().then(text => handleResult(text));
+                }
+                else {
+                    handleResult(data);
+                }
+                //HACK
             };
             var fauxPoll = setInterval(function () {
                 _this.emit("poll")
