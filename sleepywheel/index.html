@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <title>SW</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.10.0/ethers.umd.min.js"></script>
   <style>
     :root {
       --cell-size: 60px;
@@ -111,6 +113,9 @@
     </div>
   </div>
 
+  <button id="connect">Connect Wallet</button>
+  <button id="callFunction">Call Contract</button>
+
   <script>
     const board = document.getElementById('rouletteBoard');
     for (let i = 0; i < 36; i++) {
@@ -146,6 +151,30 @@
         console.log('Extra bottom button ' + i + ' clicked');
       });
     }
+
+    let provider, signer, contract;
+    const contractAddress = "0x3db94af19e1220f55969ac807276e17760db1f12";
+    const contractABI = [{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":false,"internalType":"bool","name":"won","type":"bool"},{"indexed":false,"internalType":"uint256","name":"payout","type":"uint256"}],"name":"Result","type":"event"},{"inputs":[],"name":"deposit","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"getBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint8","name":"bet","type":"uint8"}],"name":"spin","outputs":[],"stateMutability":"payable","type":"function"}];
+
+    document.getElementById("connect").onclick = async () => {
+        if (!window.ethereum) return alert("Install MetaMask!");
+        provider = new ethers.BrowserProvider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        signer = await provider.getSigner();
+        alert("Connected: " + (await signer.getAddress()));
+    };
+
+    document.getElementById("callFunction").onclick = async () => {
+        if (!signer) return alert("Connect wallet first!");
+        contract = new ethers.Contract(contractAddress, contractABI, signer);
+        const tx = await contract.spin(0);
+        alert("Transaction sent: " + tx.hash);
+        await tx.wait();
+        receipt = JSON.stringify(tx);
+        alert("Transaction confirmed! " + receipt);
+        console.log(receipt);
+    };
+
   </script>
 </body>
 </html>
