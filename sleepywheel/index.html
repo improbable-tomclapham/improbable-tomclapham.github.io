@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    :root {
+      --cell-size: 60px;
+      --gap: 5px;
+      --board-width: calc(9 * var(--cell-size) + 8 * var(--gap));
+      --board-height: calc(4 * var(--cell-size) + 3 * var(--gap));
+    }
+    .outer-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--gap);
+      margin: 20px;
+    }
+    .top-section {
+      display: flex;
+      gap: var(--gap);
+      align-items: center;
+    }
+    .side-button {
+      width: var(--cell-size);
+      height: var(--board-height);
+      font-size: 14px;
+    }
+    .board {
+      display: grid;
+      grid-template-columns: repeat(9, var(--cell-size));
+      grid-auto-rows: var(--cell-size);
+      gap: var(--gap);
+      width: var(--board-width);
+    }
+    .cell {
+      background: #ccc;
+      text-align: center;
+      line-height: var(--cell-size);
+      cursor: pointer;
+      transition: box-shadow 0.3s;
+    }
+    .cell.glow {
+      box-shadow: 0 0 10px 3px gold;
+    }
+    .right-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+      width: var(--cell-size);
+      height: var(--board-height);
+    }
+    .right-buttons button {
+      flex: 1;
+      font-size: 14px;
+    }
+    .bottom-section {
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap);
+      margin-top: var(--gap);
+      width: var(--board-width);
+    }
+    .bottom-buttons {
+      display: flex;
+      gap: var(--gap);
+    }
+    .bottom-buttons button {
+      /* Each button gets 1/3 of total width minus gaps:
+         (total width - 2*gap) / 3 = 3*cell + 2*gap */
+      width: calc((var(--board-width) - 2 * var(--gap)) / 3);
+      height: var(--cell-size);
+      font-size: 14px;
+    }
+    .extra-bottom-buttons {
+      display: flex;
+      gap: var(--gap);
+    }
+    .extra-bottom-buttons button {
+      /* Each button gets 1/6 of total width minus gaps:
+         (total width - 5*gap) / 6 = 1.5*cell + 0.5*gap */
+      width: calc((var(--board-width) - 5 * var(--gap)) / 6);
+      height: var(--cell-size);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="outer-container">
+    <div class="top-section">
+      <button class="side-button" id="sideBtn">Action</button>
+      <div class="board" id="rouletteBoard"></div>
+      <div class="right-buttons">
+        <button id="topRightBtn">Top</button>
+        <button id="bottomRightBtn">Bottom</button>
+      </div>
+    </div>
+    <div class="bottom-section">
+      <div class="bottom-buttons">
+        <button id="bottomBtn1">Btn1</button>
+        <button id="bottomBtn2">Btn2</button>
+        <button id="bottomBtn3">Btn3</button>
+      </div>
+      <div class="extra-bottom-buttons">
+        <button id="extraBtn1">Extra1</button>
+        <button id="extraBtn2">Extra2</button>
+        <button id="extraBtn3">Extra3</button>
+        <button id="extraBtn4">Extra4</button>
+        <button id="extraBtn5">Extra5</button>
+        <button id="extraBtn6">Extra6</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const board = document.getElementById('rouletteBoard');
+    for (let i = 0; i < 36; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.textContent = i + 1;
+      cell.addEventListener('click', () => {
+        console.log('Bet placed on cell:', i + 1);
+        cell.classList.toggle('glow');
+      });
+      board.appendChild(cell);
+    }
+    document.getElementById('sideBtn').addEventListener('click', () => {
+      console.log('Side button clicked');
+    });
+    document.getElementById('topRightBtn').addEventListener('click', () => {
+      console.log('Top right button clicked');
+    });
+    document.getElementById('bottomRightBtn').addEventListener('click', () => {
+      console.log('Bottom right button clicked');
+    });
+    document.getElementById('bottomBtn1').addEventListener('click', () => {
+      console.log('Bottom button 1 clicked');
+    });
+    document.getElementById('bottomBtn2').addEventListener('click', () => {
+      console.log('Bottom button 2 clicked');
+    });
+    document.getElementById('bottomBtn3').addEventListener('click', () => {
+      console.log('Bottom button 3 clicked');
+    });
+    for (let i = 1; i <= 6; i++) {
+      document.getElementById('extraBtn' + i).addEventListener('click', () => {
+        console.log('Extra bottom button ' + i + ' clicked');
+      });
+    }
+  </script>
+</body>
+</html>
