@@ -103,15 +103,22 @@
 
     .button-overlay {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 60px;
       background-image: url('button-glow.png');
-      background-size: cover;
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
       opacity: 0;
       transition: opacity 0.3s;
       pointer-events: none;
+    }
+
+    .left-button .button-overlay {
+      transform: translate(-50%, -50%) scale(1, 3.2);  /* Scale vertically to match the button height */
     }
 
     .right-buttons {
