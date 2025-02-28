@@ -145,13 +145,13 @@
       place_bet(0);
     });
     document.getElementById('topRightBtn').addEventListener('click', () => {
-      place_bet(40);
+      place_bet(40); // pocket % 3 == 0
     });
     document.getElementById('midRightBtn').addEventListener('click', () => {
-      place_bet(41);
+      place_bet(42); // pocket % 3 == 2
     });
     document.getElementById('bottomRightBtn').addEventListener('click', () => {
-      place_bet(42);
+      place_bet(41); // pocket % 3 == 1
     });
     document.getElementById('bottomBtn1').addEventListener('click', () => {
       place_bet(37);
