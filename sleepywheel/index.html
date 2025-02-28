@@ -175,45 +175,25 @@
       });
       board.appendChild(cell);
     }
-    document.getElementById('leftBtn').addEventListener('click', async (e) => {
-      place_bet(e, 0);
-    });
-    document.getElementById('topRightBtn').addEventListener('click', async (e) => {
-      place_bet(e, 40); // pocket % 3 == 0
-    });
-    document.getElementById('midRightBtn').addEventListener('click', async (e) => {
-      place_bet(e, 42); // pocket % 3 == 2
-    });
-    document.getElementById('bottomRightBtn').addEventListener('click', async (e) => {
-      place_bet(e, 41); // pocket % 3 == 1
-    });
-    document.getElementById('bottomBtn1').addEventListener('click', async (e) => {
-      place_bet(e, 37);
-    });
-    document.getElementById('bottomBtn2').addEventListener('click', async (e) => {
-      place_bet(e, 38);
-    });
-    document.getElementById('bottomBtn3').addEventListener('click', async (e) => {
-      place_bet(e, 39);
-    });
-    document.getElementById('extraBtn1').addEventListener('click', async (e) => {
-      place_bet(e, 43);
-    });
-    document.getElementById('extraBtn2').addEventListener('click', async (e) => {
-      place_bet(e, 46);
-    });
-    document.getElementById('extraBtn3').addEventListener('click', async (e) => {
-      place_bet(e, 47);
-    });
-    document.getElementById('extraBtn4').addEventListener('click', async (e) => {
-      place_bet(e, 48);
-    });
-    document.getElementById('extraBtn5').addEventListener('click', async (e) => {
-      place_bet(e, 45);
-    });
-    document.getElementById('extraBtn6').addEventListener('click', async (e) => {
-      place_bet(e, 44);
-    });
+
+    function attach_bet_to_button(button_name, bet) {
+      document.getElementById(button_name).addEventListener('click', async (e) => {
+        place_bet(e, bet);
+      });
+    }
+    attach_bet_to_button('leftBtn', 0);
+    attach_bet_to_button('topRightBtn', 40); // pocket % 3 == 0
+    attach_bet_to_button('midRightBtn', 42); // pocket % 3 == 2
+    attach_bet_to_button('bottomRightBtn', 41); // pocket % 3 == 1
+    attach_bet_to_button('bottomBtn1', 37);
+    attach_bet_to_button('bottomBtn2', 38);
+    attach_bet_to_button('bottomBtn3', 39);
+    attach_bet_to_button('extraBtn1', 43);
+    attach_bet_to_button('extraBtn2', 46); // even
+    attach_bet_to_button('extraBtn3', 47); // red
+    attach_bet_to_button('extraBtn4', 48); // black
+    attach_bet_to_button('extraBtn5', 45); // odd
+    attach_bet_to_button('extraBtn6', 44);
 
     function create_provider(name, url) {
       const provider = new ethers.providers.WebSocketProvider(url);
