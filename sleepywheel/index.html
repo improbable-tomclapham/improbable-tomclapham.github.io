@@ -395,7 +395,7 @@
     function fade_all_buttons() {
       pocket_buttons.forEach((button) => {
         const overlay = button.querySelector('.button-overlay');
-        overlay.style.opacity *= 0.95;
+        overlay.style.opacity *= (get_current_mode() === 'somnia') ? 0.95 : 0.6;
       });
     }
 
