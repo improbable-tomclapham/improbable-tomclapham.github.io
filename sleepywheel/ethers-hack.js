@@ -26852,7 +26852,6 @@ var websocketProvider = createCommonjsModule(function (module, exports) {
 
                 //HACK
                 function handleResult(text) {
-                    console.log(text);
                     var result = JSON.parse(text);
                     if (result.id != null) {
                         var id = String(result.id);
