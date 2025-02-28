@@ -8,8 +8,8 @@
     :root {
       --cell-size: 60px;
       --gap: 5px;
-      --board-width: calc(9 * var(--cell-size) + 8 * var(--gap));
-      --board-height: calc(4 * var(--cell-size) + 3 * var(--gap));
+      --board-width: calc(12 * var(--cell-size) + 8 * var(--gap));
+      --board-height: calc(3 * var(--cell-size) + 3 * var(--gap));
     }
     .outer-container {
       display: flex;
@@ -23,14 +23,14 @@
       gap: var(--gap);
       align-items: center;
     }
-    .side-button {
+    .left-button {
       width: var(--cell-size);
       height: var(--board-height);
       font-size: 14px;
     }
     .board {
       display: grid;
-      grid-template-columns: repeat(9, var(--cell-size));
+      grid-template-columns: repeat(12, var(--cell-size));
       grid-auto-rows: var(--cell-size);
       gap: var(--gap);
       width: var(--board-width);
@@ -53,7 +53,7 @@
       height: var(--board-height);
     }
     .right-buttons button {
-      flex: 1;
+      flex: 10;
       font-size: 14px;
     }
     .bottom-section {
@@ -90,10 +90,11 @@
 <body>
   <div class="outer-container">
     <div class="top-section">
-      <button class="side-button" id="sideBtn">Action</button>
+      <button class="left-button" id="leftBtn">Action</button>
       <div class="board" id="rouletteBoard"></div>
       <div class="right-buttons">
         <button id="topRightBtn">Top</button>
+        <button id="midRightBtn">Mid</button>
         <button id="bottomRightBtn">Bottom</button>
       </div>
     </div>
@@ -134,11 +135,14 @@
       });
       board.appendChild(cell);
     }
-    document.getElementById('sideBtn').addEventListener('click', () => {
-      console.log('Side button clicked');
+    document.getElementById('leftBtn').addEventListener('click', () => {
+      console.log('Left button clicked');
     });
     document.getElementById('topRightBtn').addEventListener('click', () => {
       console.log('Top right button clicked');
+    });
+    document.getElementById('midRightBtn').addEventListener('click', () => {
+      console.log('Mid right button clicked');
     });
     document.getElementById('bottomRightBtn').addEventListener('click', () => {
       console.log('Bottom right button clicked');
@@ -179,7 +183,6 @@
 
         console.log("Transaction confirmed! ", JSON.stringify(tx));
 
-        // Filter and decode logs for the event
         receipt.logs.forEach((log) => {
             try {
                 const parsedLog = contract.interface.parseLog(log);
@@ -188,9 +191,7 @@
                     console.log("hello");
                     alert("Event Data:", JSON.stringify(parsedLog.args));
                 }
-            } catch (err) {
-                // Ignore logs that don’t match
-            }
+            } catch (err) {}
         });
     };
 
@@ -208,8 +209,8 @@
       });
       return provider;
     }
-    const eth_provider = create_provider("ethereum", "wss://ethereum.publicnode.com");
-    const som_provider = create_provider("somnia", "ws://dream-rpc.somnia.network/ws");
+//    const eth_provider = create_provider("ethereum", "wss://ethereum.publicnode.com");
+//    const som_provider = create_provider("somnia", "ws://dream-rpc.somnia.network/ws");
 
   </script>
 </body>
