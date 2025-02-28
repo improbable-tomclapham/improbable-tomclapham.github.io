@@ -126,8 +126,35 @@
   <p id="somnia-block-number">Waiting for blocks...</p>
 
   <script>
-    function place_bet(bet) {
+    let provider, signer, contract;
+    const somniaContractAddress = "0x3db94af19e1220f55969ac807276e17760db1f12";
+    const contractABI = [{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":false,"internalType":"bool","name":"won","type":"bool"},{"indexed":false,"internalType":"uint256","name":"payout","type":"uint256"}],"name":"Result","type":"event"},{"inputs":[],"name":"deposit","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"getBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint8","name":"bet","type":"uint8"}],"name":"spin","outputs":[],"stateMutability":"payable","type":"function"}];
+
+    async function place_bet(bet) {
+      if (!window.ethereum) return alert("Install MetaMask!");
+
+      if (!signer) {
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        signer = await provider.getSigner();
+        alert("Connected: " + (await signer.getAddress()));
+      }
+
+      contract = new ethers.Contract(somniaContractAddress, contractABI, signer);
+      const tx = await contract.spin(45, {value: ethers.utils.parseEther("0.1")});
       console.log("Placed bet on", bet);
+      const receipt = await tx.wait();
+      console.log("Transaction confirmed! ", JSON.stringify(tx));
+      receipt.logs.forEach((log) => {
+          try {
+              const parsedLog = contract.interface.parseLog(log);
+              console.log("Event '" + parsedLog.name + "':", parsedLog.args);
+              if (parsedLog.name === "Result") {
+                  console.log(JSON.stringify(parsedLog.args));
+                  alert("Event Data:", JSON.stringify(parsedLog.args));
+              }
+          } catch (err) {}
+      });
     }
 
     const board = document.getElementById('rouletteBoard');
@@ -141,78 +168,45 @@
       });
       board.appendChild(cell);
     }
-    document.getElementById('leftBtn').addEventListener('click', () => {
+    document.getElementById('leftBtn').addEventListener('click', async () => {
       place_bet(0);
     });
-    document.getElementById('topRightBtn').addEventListener('click', () => {
+    document.getElementById('topRightBtn').addEventListener('click', async () => {
       place_bet(40); // pocket % 3 == 0
     });
-    document.getElementById('midRightBtn').addEventListener('click', () => {
+    document.getElementById('midRightBtn').addEventListener('click', async () => {
       place_bet(42); // pocket % 3 == 2
     });
-    document.getElementById('bottomRightBtn').addEventListener('click', () => {
+    document.getElementById('bottomRightBtn').addEventListener('click', async () => {
       place_bet(41); // pocket % 3 == 1
     });
-    document.getElementById('bottomBtn1').addEventListener('click', () => {
+    document.getElementById('bottomBtn1').addEventListener('click', async () => {
       place_bet(37);
     });
-    document.getElementById('bottomBtn2').addEventListener('click', () => {
+    document.getElementById('bottomBtn2').addEventListener('click', async () => {
       place_bet(38);
     });
-    document.getElementById('bottomBtn3').addEventListener('click', () => {
+    document.getElementById('bottomBtn3').addEventListener('click', async () => {
       place_bet(39);
     });
-    document.getElementById('extraBtn1').addEventListener('click', () => {
+    document.getElementById('extraBtn1').addEventListener('click', async () => {
       place_bet(43);
     });
-    document.getElementById('extraBtn2').addEventListener('click', () => {
+    document.getElementById('extraBtn2').addEventListener('click', async () => {
       place_bet(46);
     });
-    document.getElementById('extraBtn3').addEventListener('click', () => {
+    document.getElementById('extraBtn3').addEventListener('click', async () => {
       place_bet(47);
     });
-    document.getElementById('extraBtn4').addEventListener('click', () => {
+    document.getElementById('extraBtn4').addEventListener('click', async () => {
       place_bet(48);
     });
-    document.getElementById('extraBtn5').addEventListener('click', () => {
+    document.getElementById('extraBtn5').addEventListener('click', async () => {
       place_bet(45);
     });
-    document.getElementById('extraBtn6').addEventListener('click', () => {
+    document.getElementById('extraBtn6').addEventListener('click', async () => {
       place_bet(44);
     });
-
-    let provider, signer, contract;
-    const contractAddress = "0x3db94af19e1220f55969ac807276e17760db1f12";
-    const contractABI = [{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":false,"internalType":"bool","name":"won","type":"bool"},{"indexed":false,"internalType":"uint256","name":"payout","type":"uint256"}],"name":"Result","type":"event"},{"inputs":[],"name":"deposit","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"getBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint8","name":"bet","type":"uint8"}],"name":"spin","outputs":[],"stateMutability":"payable","type":"function"}];
-
-    document.getElementById("connect").onclick = async () => {
-        if (!window.ethereum) return alert("Install MetaMask!");
-        provider = new ethers.BrowserProvider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        signer = await provider.getSigner();
-        alert("Connected: " + (await signer.getAddress()));
-    };
-
-    document.getElementById("callFunction").onclick = async () => {
-        if (!signer) return alert("Connect wallet first!");
-        contract = new ethers.Contract(contractAddress, contractABI, signer);
-        const tx = await contract.spin(45, {value: ethers.parseEther("0.1")});
-        alert("Transaction sent: " + tx.hash);
-        const receipt = await tx.wait();
-
-        console.log("Transaction confirmed! ", JSON.stringify(tx));
-
-        receipt.logs.forEach((log) => {
-            try {
-                const parsedLog = contract.interface.parseLog(log);
-                console.log("Event '" + parsedLog.name + "':", parsedLog.args);
-                if (parsedLog.name === "Result") {
-                    console.log("hello");
-                    alert("Event Data:", JSON.stringify(parsedLog.args));
-                }
-            } catch (err) {}
-        });
-    };
 
     function create_provider(name, url) {
       const provider = new ethers.providers.WebSocketProvider(url);
