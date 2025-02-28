@@ -243,6 +243,13 @@
       margin-bottom: 20px;
     }
 
+    h3 {
+      color: white;
+      font-family: Arial, Helvetica, sans-serif;
+      text-align: center;
+      margin: 20px 0;
+    }
+
     h2 {
       color: white;
       font-family: Arial, Helvetica, sans-serif;
@@ -281,6 +288,7 @@
     </div>
     <img id="spinningLogo" src="ethereum-logo.png" alt="Spinning Logo">
   </div>
+  <h3 id="gamblingExplanation" />
   <h2>Place your bet</h2>
   <div class="outer-container">
     <div class="top-section">
@@ -337,6 +345,8 @@
       leftLabel.classList.toggle('active-text', !isChecked);
       rightLabel.classList.toggle('active-text', isChecked);
       logo.src = isChecked ? 'somnia-logo.png' : 'ethereum-logo.png';
+      document.getElementById('gamblingExplanation').textContent =
+        'Gamble on the hash of the next block to be added to the ' + (isChecked ? 'Somnia chain' : 'Ethereum chain');
       set_rotation_speed(isChecked ? 0.1 : 12); // 10Hz for Somnia, 1/12Hz for Ethereum
       clear_all_buttons()
     }
