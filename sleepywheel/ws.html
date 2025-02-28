@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Ethereum Blocks</title>
+    <!--<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>-->
+    <script src="ethers-hack.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        h1 { font-size: 24px; }
+        #block-number { font-size: 32px; font-weight: bold; color: #2c3e50; }
+    </style>
+</head>
+<body>
+    <h1>Latest Ethereum Block</h1>
+    <p id="ethereum-block-number">Waiting for blocks...</p>
+    <h1>Latest Somnia Block</h1>
+    <p id="somnia-block-number">Waiting for blocks...</p>
+    <script>
+        function create_provider(name, url) {
+            const provider = new ethers.providers.WebSocketProvider(url);
+            provider.onopen = () => console.log("Connected!");
+            provider.onerror = (err) => console.log("Error:", err);
+            provider.on("block", (blockNumber) => {
+                console.log("Got " + name + " block");
+                document.getElementById(name + "-block-number").textContent = blockNumber;
+            });
+            window.addEventListener("beforeunload", () => {
+                provider.removeAllListeners();
+                provider.destroy();
+            });
+            return provider;
+        }
+        const eth_provider = create_provider("ethereum", "wss://ethereum.publicnode.com");
+        const som_provider = create_provider("somnia", "ws://dream-rpc.somnia.network/ws");
+    </script>
+</body>
+</html>

@@ -167,12 +167,25 @@
     document.getElementById("callFunction").onclick = async () => {
         if (!signer) return alert("Connect wallet first!");
         contract = new ethers.Contract(contractAddress, contractABI, signer);
-        const tx = await contract.spin(0);
+        const tx = await contract.spin(45, {value: ethers.parseEther("0.1")});
         alert("Transaction sent: " + tx.hash);
-        await tx.wait();
-        receipt = JSON.stringify(tx);
-        alert("Transaction confirmed! " + receipt);
-        console.log(receipt);
+        const receipt = await tx.wait();
+
+        console.log("Transaction confirmed! ", JSON.stringify(tx));
+
+        // Filter and decode logs for the event
+        receipt.logs.forEach((log) => {
+            try {
+                const parsedLog = contract.interface.parseLog(log);
+                console.log("Event '" + parsedLog.name + "':", parsedLog.args);
+                if (parsedLog.name === "Result") {
+                    console.log("hello");
+                    alert("Event Data:", JSON.stringify(parsedLog.args));
+                }
+            } catch (err) {
+                // Ignore logs that don’t match
+            }
+        });
     };
 
   </script>
