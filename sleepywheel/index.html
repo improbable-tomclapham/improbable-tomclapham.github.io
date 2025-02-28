@@ -68,6 +68,15 @@
       transform: scaleY(-1);
       font-family: Arial, Helvetica, sans-serif;
     }
+    .cell.red {
+      background-color: darkred;
+    }
+    .cell.black {
+      background-color: black;
+    }
+    .cell.green {
+      background-color: rgb(29, 99, 7);
+    }
     .cell.glow, button.glow {
       box-shadow: 0 0 10px 3px gold;
     }
@@ -119,6 +128,12 @@
       border: 2px solid #ccc;
       color: white;
       font-family: Arial, Helvetica, sans-serif;
+    }
+    #extraBtn3 {
+      background: darkred;
+    }
+    #extraBtn4 {
+      background: black;
     }
   </style>
 </head>
@@ -209,10 +224,16 @@
     }
 
     const board = document.getElementById('rouletteBoard');
+    const colours = [
+      'red', 'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red', 'black', 'black', 'red',
+      'black', 'red', 'black', 'red', 'black', 'red', 'red', 'black', 'red', 'black', 'red', 'black',
+      'red', 'black', 'red', 'black', 'black', 'red', 'black', 'red', 'black', 'red', 'black', 'red',
+    ];
     for (let i = 0; i < 36; i++) {
       const cell = document.createElement('div');
       cell.className = 'cell';
       cell.textContent = i + 1;
+      cell.classList.add(colours[i]);
       cell.addEventListener('click', (e) => {
         place_bet(e, i + 1);
       });
