@@ -5,6 +5,28 @@
   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.10.0/ethers.umd.min.js"></script>-->
   <script src="ethers-hack.js"></script>
   <style>
+    body {
+      background-color: rgb(29, 99, 7);
+      transition: background-color 0.3s;
+    }
+    @keyframes flashBgGrey {
+      0% { background-color: rgb(29, 99, 7); }
+      50% { background-color: rgb(0, 0, 0); }
+      100% { background-color: rgb(29, 99, 7); }
+    }
+    @keyframes flashBgGold {
+      0% { background-color: rgb(29, 99, 7); }
+      50% { background-color: gold; }
+      100% { background-color: rgb(29, 99, 7); }
+    }
+    .flash-background-grey {
+      animation: flashBgGrey 1.0s ease-in-out;
+    }
+    .flash-background-gold {
+      animation: flashBgGold 1.0s ease-in-out;
+    }
+
+
     :root {
       --cell-size: 60px;
       --gap: 5px;
@@ -130,6 +152,16 @@
     const somniaContractAddress = "0x3db94af19e1220f55969ac807276e17760db1f12";
     const contractABI = [{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":false,"internalType":"bool","name":"won","type":"bool"},{"indexed":false,"internalType":"uint256","name":"payout","type":"uint256"}],"name":"Result","type":"event"},{"inputs":[],"name":"deposit","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"getBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint8","name":"bet","type":"uint8"}],"name":"spin","outputs":[],"stateMutability":"payable","type":"function"}];
 
+    function flash_background(success) {
+      const effect = (success) ? 'flash-background-gold' : 'flash-background-grey';
+      const body = document.body;
+      body.classList.add(effect);
+      body.addEventListener('animationend', function handler() {
+        body.classList.remove(effect);
+        body.removeEventListener('animationend', handler);
+      });
+    }
+
     async function place_bet(element, bet) {
       if (!window.ethereum) return alert("Install MetaMask!");
 
@@ -152,13 +184,13 @@
         element.target.classList.toggle('glow');
 
         receipt.logs.forEach((log) => {
-            try {
-                const parsedLog = contract.interface.parseLog(log);
-                console.log("Event '" + parsedLog.name + "':", parsedLog.args);
-                if (parsedLog.name === "Result") {
-                    console.log(JSON.stringify(parsedLog.args));
-                }
-            } catch (err) {}
+          try {
+            const parsedLog = contract.interface.parseLog(log);
+            console.log("Event '" + parsedLog.name + "':", parsedLog.args);
+            if (parsedLog.name === "Result") {
+              flash_background(parsedLog.args.won);
+            }
+          } catch (err) {}
         });
       } catch (err) {
         element.target.classList.toggle('glow');
