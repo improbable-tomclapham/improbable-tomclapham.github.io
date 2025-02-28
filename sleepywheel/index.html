@@ -289,7 +289,7 @@
     <img id="spinningLogo" src="ethereum-logo.png" alt="Spinning Logo">
   </div>
   <h3 id="gamblingExplanation" />
-  <h2>Place your bet</h2>
+  <h2 id="gamblingStatus">Place your bet</h2>
   <div class="outer-container">
     <div class="top-section">
       <button class="left-button" id="leftBtn">0</button>
@@ -327,10 +327,20 @@
   </div>
 
   <script>
+    const stake_string = "1";
+
     const zero_button = document.getElementById('leftBtn');
     add_overlay(zero_button);
 
     const pocket_buttons = [zero_button];
+
+    function set_gambling_explanation(explanation) {
+      document.getElementById('gamblingExplanation').textContent = explanation;
+    }
+
+    function set_gambling_status(status) {
+      document.getElementById('gamblingStatus').textContent = status;
+    }
 
     function set_rotation_speed(secondsPerRotation) {
       const logo = document.getElementById('spinningLogo');
@@ -345,8 +355,9 @@
       leftLabel.classList.toggle('active-text', !isChecked);
       rightLabel.classList.toggle('active-text', isChecked);
       logo.src = isChecked ? 'somnia-logo.png' : 'ethereum-logo.png';
-      document.getElementById('gamblingExplanation').textContent =
-        'Gamble on the hash of the next block to be added to the ' + (isChecked ? 'Somnia chain' : 'Ethereum chain');
+      set_gambling_explanation(
+        'Gamble on the hash of the next block to be added to the ' + (isChecked ? 'Somnia chain' : 'Ethereum chain')
+      );
       set_rotation_speed(isChecked ? 0.1 : 12); // 10Hz for Somnia, 1/12Hz for Ethereum
       clear_all_buttons()
     }
@@ -382,8 +393,10 @@
 
       try {
         contract = new ethers.Contract(somniaContractAddress, contractABI, signer);
-        const tx = await contract.spin(45, {value: ethers.utils.parseEther("0.1")});
+        set_gambling_status("Approve transaction");
+        const tx = await contract.spin(bet, {value: ethers.utils.parseEther(stake_string)});
         console.log("Placed bet on", bet);
+        set_gambling_status("Waiting for results");
 
         const receipt = await tx.wait();
         console.log("Transaction confirmed! ", JSON.stringify(tx));
@@ -394,12 +407,20 @@
             const parsedLog = contract.interface.parseLog(log);
             console.log("Event '" + parsedLog.name + "':", parsedLog.args);
             if (parsedLog.name === "Result") {
-              flash_background(parsedLog.args.won);
+              const success = parsedLog.args.won;
+              const payout = parsedLog.args.payout;
+              const stake = ethers.utils.parseEther(stake_string);
+              const delta = success ? payout.sub(stake) : stake;
+              const delta_string = ethers.utils.formatUnits(delta);
+              const unit = get_current_mode() === 'somnia' ? 'STT' : 'ETH';
+              set_gambling_status("You " + (success ? "won" : "lost") + " " + delta_string + " " + unit);
+              flash_background(success);
             }
           } catch (err) {}
         });
       } catch (err) {
         element.target.classList.toggle('glow');
+        set_gambling_status("Place your bet");
       }
     }
 
