@@ -6,9 +6,28 @@
   <script src="ethers-hack.js?1"></script>
   <style>
     body {
-      background-color: rgb(29, 99, 7);
+      background-color: rgba(29, 99, 7, 0.99);
+      background-image: url('felt.png');
+      background-blend-mode: multiply;
       transition: background-color 0.3s;
     }
+    /* vignette overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      background: radial-gradient(
+        circle at center,
+        rgba(0, 0, 0, 0) 30%,
+        rgba(0, 0, 0, 0.25) 100%
+      );
+      z-index: 9999;
+    }
+
     @keyframes flashBgGrey {
       0% { background-color: rgb(29, 99, 7); }
       50% { background-color: rgb(0, 0, 0); }
