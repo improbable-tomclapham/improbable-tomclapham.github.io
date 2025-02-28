@@ -26,7 +26,6 @@
       animation: flashBgGold 1.0s ease-in-out;
     }
 
-
     :root {
       --cell-size: 60px;
       --gap: 5px;
@@ -59,12 +58,15 @@
       transform: scaleY(-1);
     }
     .cell {
-      background: #ccc;
+      background: black;
+      color: white;
+      border: 2px solid #ccc;
       text-align: center;
       line-height: var(--cell-size);
       cursor: pointer;
       transition: box-shadow 0.3s;
       transform: scaleY(-1);
+      font-family: Arial, Helvetica, sans-serif;
     }
     .cell.glow, button.glow {
       box-shadow: 0 0 10px 3px gold;
@@ -79,6 +81,7 @@
     .right-buttons button {
       flex: 1;
       font-size: 14px;
+      font-family: Arial, Helvetica, sans-serif;
     }
     .bottom-section {
       display: flex;
@@ -97,6 +100,7 @@
       width: calc((var(--board-width) - 2 * var(--gap)) / 3);
       height: var(--cell-size);
       font-size: 14px;
+      font-family: Arial, Helvetica, sans-serif;
     }
     .extra-bottom-buttons {
       display: flex;
@@ -108,6 +112,13 @@
       width: calc((var(--board-width) - 5 * var(--gap)) / 6);
       height: var(--cell-size);
       font-size: 14px;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    button {
+      background: transparent;
+      border: 2px solid #ccc;
+      color: white;
+      font-family: Arial, Helvetica, sans-serif;
     }
   </style>
 </head>
