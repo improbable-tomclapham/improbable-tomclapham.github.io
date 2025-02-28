@@ -208,11 +208,45 @@
     .active-text {
       font-weight: bold;
     }
+
+    .header-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .banner img {
+      width: 100%;
+      max-width: 1000px;
+      height: auto;
+      display: block;
+    }
+
+    #spinningLogo {
+      display: block;
+      width: 150px;
+      height: 150px;
+      animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="banner">
-    <img src="banner.png" alt="Roulette Banner" style="width: 100%; max-width: 1200px; height: auto; display: block; margin: 0 auto 20px auto;">
+  <div class="header-container">
+    <div class="banner">
+      <img src="banner.png" alt="Roulette Banner">
+    </div>
+    <img id="spinningLogo" src="ethereum-logo.png" alt="Spinning Logo">
   </div>
   <div class="outer-container">
     <div class="top-section">
@@ -256,12 +290,20 @@
 
     const pocket_buttons = [zero_button];
 
+    function set_rotation_speed(secondsPerRotation) {
+      const logo = document.getElementById('spinningLogo');
+      logo.style.animationDuration = secondsPerRotation + 's';
+    }
+
     function update_toggle() {
       const isChecked = document.getElementById('chainToggle').checked;
       const leftLabel = document.getElementById('leftLabel');
       const rightLabel = document.getElementById('rightLabel');
+      const logo = document.getElementById('spinningLogo');
       leftLabel.classList.toggle('active-text', !isChecked);
       rightLabel.classList.toggle('active-text', isChecked);
+      logo.src = isChecked ? 'somnia-logo.png' : 'ethereum-logo.png';
+      set_rotation_speed(isChecked ? 0.1 : 12); // 10Hz for Somnia, 1/12Hz for Ethereum
       clear_all_buttons()
     }
 
