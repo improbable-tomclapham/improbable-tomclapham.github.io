@@ -126,43 +126,60 @@
   <p id="somnia-block-number">Waiting for blocks...</p>
 
   <script>
+    function place_bet(bet) {
+      console.log("Placed bet on", bet);
+    }
+
     const board = document.getElementById('rouletteBoard');
     for (let i = 0; i < 36; i++) {
       const cell = document.createElement('div');
       cell.className = 'cell';
       cell.textContent = i + 1;
       cell.addEventListener('click', () => {
-        console.log('Bet placed on cell:', i + 1);
+        place_bet(i + 1);
         cell.classList.toggle('glow');
       });
       board.appendChild(cell);
     }
     document.getElementById('leftBtn').addEventListener('click', () => {
-      console.log('Left button clicked');
+      place_bet(0);
     });
     document.getElementById('topRightBtn').addEventListener('click', () => {
-      console.log('Top right button clicked');
+      place_bet(40);
     });
     document.getElementById('midRightBtn').addEventListener('click', () => {
-      console.log('Mid right button clicked');
+      place_bet(41);
     });
     document.getElementById('bottomRightBtn').addEventListener('click', () => {
-      console.log('Bottom right button clicked');
+      place_bet(42);
     });
     document.getElementById('bottomBtn1').addEventListener('click', () => {
-      console.log('Bottom button 1 clicked');
+      place_bet(37);
     });
     document.getElementById('bottomBtn2').addEventListener('click', () => {
-      console.log('Bottom button 2 clicked');
+      place_bet(38);
     });
     document.getElementById('bottomBtn3').addEventListener('click', () => {
-      console.log('Bottom button 3 clicked');
+      place_bet(39);
     });
-    for (let i = 1; i <= 6; i++) {
-      document.getElementById('extraBtn' + i).addEventListener('click', () => {
-        console.log('Extra bottom button ' + i + ' clicked');
-      });
-    }
+    document.getElementById('extraBtn1').addEventListener('click', () => {
+      place_bet(43);
+    });
+    document.getElementById('extraBtn2').addEventListener('click', () => {
+      place_bet(46);
+    });
+    document.getElementById('extraBtn3').addEventListener('click', () => {
+      place_bet(47);
+    });
+    document.getElementById('extraBtn4').addEventListener('click', () => {
+      place_bet(48);
+    });
+    document.getElementById('extraBtn5').addEventListener('click', () => {
+      place_bet(45);
+    });
+    document.getElementById('extraBtn6').addEventListener('click', () => {
+      place_bet(44);
+    });
 
     let provider, signer, contract;
     const contractAddress = "0x3db94af19e1220f55969ac807276e17760db1f12";
