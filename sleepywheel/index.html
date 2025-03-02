@@ -429,7 +429,7 @@
         contract = new ethers.Contract(contract_address, kContractABI, signer);
         set_gambling_status("Approve transaction");
         const stake = ethers.utils.parseEther(chain_properties.stake);
-        const tx = await contract.spin(bet, {value: stake});
+        const tx = await contract.spin(bet, {value: stake, gasLimit: 100000});
         console.log("Placed bet on", bet);
         set_gambling_status("Waiting for the transaction to execute...");
 
