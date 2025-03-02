@@ -538,8 +538,9 @@
       provider.onerror = (err) => console.log("Error:", err);
       provider._subscribe("newHeads", ["newHeads"], (result) => {
         if (get_current_mode() === name) {
-          const block_hash = result[chain_properties.websocketHashField];
-          const pocket = block_hash % 37;
+          console.log("hash: " + result.hash + " -> " + ethers.BigNumber.from(result.hash).mod(37) + "\nparent hash: " + result.parentHash + " -> " + ethers.BigNumber.from(result.parentHash).mod(37) );
+          const block_hash = ethers.BigNumber.from(result[chain_properties.websocketHashField]);
+          const pocket = block_hash.mod(37).toNumber();
           const button = pocket_buttons[pocket];
           const overlay = button.querySelector('.button-overlay');
           overlay.style.opacity = 1;
