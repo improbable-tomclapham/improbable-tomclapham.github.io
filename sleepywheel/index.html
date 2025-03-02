@@ -327,7 +327,36 @@
   </div>
 
   <script>
-    const stake_string = "1";
+    const kChainProperties = {
+      "Ethereum": {
+        // chain:
+        "chainId": "0xaa36a7",
+        "unit": "ETH",
+        "websocketURL": "wss://ethereum-sepolia-rpc.publicnode.com",
+        "websocketHashField": "hash",
+        // Sleepy Wheel:
+        "contractAddress": "0xE817C65e81Fd8d415f77cE5F2C2C1B9ddDB6D7F4",
+        "stake": "0.0000001",
+        // UI:
+        "logo": "ethereum-logo.png",
+        "fadeRate": 0.6,
+        "rotationPeriod": 12,  // block rate roughly 1/12Hz
+      },
+      "Somnia": {
+        // chain:
+        "chainId": "0xc488",
+        "unit": "STT",
+        "websocketURL": "ws://dream-rpc.somnia.network/ws",
+        "websocketHashField": "parentHash", // Somnia doesn't provide "hash", oh well
+        // Sleepy Wheel:
+        "contractAddress": "0x3db94af19e1220f55969ac807276e17760db1f12",
+        "stake": "1",
+        // UI:
+        "logo": "somnia-logo.png",
+        "fadeRate": 0.95,
+        "rotationPeriod": 0.1, // block rate 10Hz
+      }
+    }
 
     const zero_button = document.getElementById('leftBtn');
     add_overlay(zero_button);
@@ -342,32 +371,40 @@
       document.getElementById('gamblingStatus').textContent = status;
     }
 
-    function set_rotation_speed(secondsPerRotation) {
+    function set_rotation_period(secondsPerRotation) {
       const logo = document.getElementById('spinningLogo');
       logo.style.animationDuration = secondsPerRotation + 's';
     }
 
-    function update_toggle() {
+    let provider, signer;
+    const kSepoliaContractAddress = "TODO";
+    const kSomniaContractAddress = "0x3db94af19e1220f55969ac807276e17760db1f12";
+    const kContractABI = [{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":false,"internalType":"bool","name":"won","type":"bool"},{"indexed":false,"internalType":"uint256","name":"payout","type":"uint256"}],"name":"Result","type":"event"},{"inputs":[],"name":"deposit","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"getBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint8","name":"bet","type":"uint8"}],"name":"spin","outputs":[],"stateMutability":"payable","type":"function"}];
+
+    async function update_toggle() {
       const isChecked = document.getElementById('chainToggle').checked;
       const leftLabel = document.getElementById('leftLabel');
       const rightLabel = document.getElementById('rightLabel');
       const logo = document.getElementById('spinningLogo');
       leftLabel.classList.toggle('active-text', !isChecked);
       rightLabel.classList.toggle('active-text', isChecked);
-      logo.src = isChecked ? 'somnia-logo.png' : 'ethereum-logo.png';
-      set_gambling_explanation(
-        'Gamble on the hash of the next block to be added to the ' + (isChecked ? 'Somnia chain' : 'Ethereum chain')
-      );
-      set_rotation_speed(isChecked ? 0.1 : 12); // 10Hz for Somnia, 1/12Hz for Ethereum
-      clear_all_buttons()
+
+      const chain_properties = get_current_chain_properties();
+      logo.src = chain_properties.logo;
+      set_gambling_explanation('Why not gamble on the hash of the last ' + get_current_mode() + ' block');
+      set_rotation_period(chain_properties.rotationPeriod);
+      clear_all_buttons();
+
+      await window.ethereum.request({"method": "wallet_switchEthereumChain", "params": [{chainId: chain_properties.chainId}]});
+
+      provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      signer = await provider.getSigner();
+      console.log("Connected to " + get_current_mode() + ": " + (await signer.getAddress()));
     }
 
     // Initialize labels on page load
     update_toggle();
-
-    let provider, signer, contract;
-    const somniaContractAddress = "0x3db94af19e1220f55969ac807276e17760db1f12";
-    const contractABI = [{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":false,"internalType":"bool","name":"won","type":"bool"},{"indexed":false,"internalType":"uint256","name":"payout","type":"uint256"}],"name":"Result","type":"event"},{"inputs":[],"name":"deposit","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"getBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint8","name":"bet","type":"uint8"}],"name":"spin","outputs":[],"stateMutability":"payable","type":"function"}];
 
     function flash_background(success) {
       const effect = (success) ? 'flash-background-gold' : 'flash-background-grey';
@@ -382,21 +419,19 @@
     async function place_bet(element, bet) {
       if (!window.ethereum) return alert("Install MetaMask!");
 
+      if (!signer) return alert("Couldn't connect to " + get_current_mode());
+
       element.target.classList.toggle('glow');
 
-      if (!signer) {
-        provider = new ethers.providers.Web3Provider(window.ethereum);
-        await provider.send("eth_requestAccounts", []);
-        signer = await provider.getSigner();
-        console.log("Connected: " + (await signer.getAddress()));
-      }
-
       try {
-        contract = new ethers.Contract(somniaContractAddress, contractABI, signer);
+        const chain_properties = get_current_chain_properties();
+        contract_address = chain_properties.contractAddress;
+        contract = new ethers.Contract(contract_address, kContractABI, signer);
         set_gambling_status("Approve transaction");
-        const tx = await contract.spin(bet, {value: ethers.utils.parseEther(stake_string)});
+        const stake = ethers.utils.parseEther(chain_properties.stake);
+        const tx = await contract.spin(bet, {value: stake});
         console.log("Placed bet on", bet);
-        set_gambling_status("Waiting for results");
+        set_gambling_status("Waiting for the transaction to execute...");
 
         const receipt = await tx.wait();
         console.log("Transaction confirmed! ", JSON.stringify(tx));
@@ -409,18 +444,21 @@
             if (parsedLog.name === "Result") {
               const success = parsedLog.args.won;
               const payout = parsedLog.args.payout;
-              const stake = ethers.utils.parseEther(stake_string);
               const delta = success ? payout.sub(stake) : stake;
               const delta_string = ethers.utils.formatUnits(delta);
-              const unit = get_current_mode() === 'somnia' ? 'STT' : 'ETH';
+              const unit = chain_properties.unit;
               set_gambling_status("You " + (success ? "won" : "lost") + " " + delta_string + " " + unit);
               flash_background(success);
             }
-          } catch (err) {}
+          } catch (err) {
+            set_gambling_status("Something weird went wrong :/")
+            console.log("Log parsing failed: " + err)
+          }
         });
       } catch (err) {
+        set_gambling_status("Transaction failed :/")
+        console.log("place_bet failed: " + err)
         element.target.classList.toggle('glow');
-        set_gambling_status("Place your bet");
       }
     }
 
@@ -441,7 +479,7 @@
     function fade_all_buttons() {
       pocket_buttons.forEach((button) => {
         const overlay = button.querySelector('.button-overlay');
-        overlay.style.opacity *= (get_current_mode() === 'somnia') ? 0.95 : 0.6;
+        overlay.style.opacity *= get_current_chain_properties().fadeRate;
       });
     }
 
@@ -485,16 +523,23 @@
     attach_bet_to_button('extraBtn6', 44);
 
     function get_current_mode() {
-      return document.getElementById('chainToggle').checked ? 'somnia' : 'ethereum';
+      return document.getElementById('chainToggle').checked ? 'Somnia' : 'Ethereum';
     }
 
-    function create_provider(name, url) {
+    function get_current_chain_properties() {
+      return kChainProperties[get_current_mode()];
+    }
+
+    function create_websocket_provider(name) {
+      const chain_properties = kChainProperties[name];
+      const url = chain_properties.websocketURL;
       const provider = new ethers.providers.WebSocketProvider(url);
       provider.onopen = () => console.log("Connected!");
       provider.onerror = (err) => console.log("Error:", err);
       provider._subscribe("newHeads", ["newHeads"], (result) => {
         if (get_current_mode() === name) {
-          const pocket = result.parentHash % 37;
+          const block_hash = result[chain_properties.websocketHashField];
+          const pocket = block_hash % 37;
           const button = pocket_buttons[pocket];
           const overlay = button.querySelector('.button-overlay');
           overlay.style.opacity = 1;
@@ -507,8 +552,8 @@
       });
       return provider;
     }
-    const eth_provider = create_provider("ethereum", "wss://ethereum.publicnode.com");
-    const som_provider = create_provider("somnia", "ws://dream-rpc.somnia.network/ws");
+    const eth_ws_provider = create_websocket_provider("Ethereum");
+    const som_ws_provider = create_websocket_provider("Somnia");
 
   </script>
 </body>
