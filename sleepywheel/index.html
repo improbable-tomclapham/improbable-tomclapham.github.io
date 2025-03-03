@@ -80,11 +80,11 @@
     .cell {
       background: black;
       color: white;
-      border: 2px solid #ccc;
+      border: 2px solid #aaa;
       text-align: center;
       line-height: var(--cell-size);
       cursor: pointer;
-      transition: box-shadow 0.3s;
+      transition: all 0.3s;
       transform: scaleY(-1);
       font-family: Arial, Helvetica, sans-serif;
     }
@@ -97,8 +97,12 @@
     .cell.green {
       background-color: rgb(29, 99, 7);
     }
-    .cell.glow, button.glow {
+    .cell:hover {
+      border-color: white;
+    }
+    .board .cell.glow {
       box-shadow: 0 0 10px 3px gold;
+      border-color: #ccc;
     }
 
     .button-overlay {
@@ -164,11 +168,23 @@
       font-size: 14px;
       font-family: Arial, Helvetica, sans-serif;
     }
-    button {
+    button,
+    .left-button {
       background: transparent;
-      border: 2px solid #ccc;
+      border: 2px solid #aaa;
       color: white;
       font-family: Arial, Helvetica, sans-serif;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .outer-container button:hover,
+    .left-button:hover {
+      border-color: white;
+    }
+    .outer-container button.glow,
+    .left-button.glow {
+      box-shadow: 0 0 10px 3px gold;
+      border-color: #ccc;
     }
     #extraBtn3 {
       background: darkred;
@@ -278,6 +294,10 @@
       to {
         transform: rotate(360deg);
       }
+    }
+
+    button:hover {
+      border-color: white;
     }
   </style>
 </head>
