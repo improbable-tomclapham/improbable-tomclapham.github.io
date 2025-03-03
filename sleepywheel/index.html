@@ -466,7 +466,7 @@
               const delta_string = ethers.utils.formatUnits(delta);
               const unit = chain_properties.unit;
               set_gambling_status("You " + (success ? "won" : "lost") + " " + delta_string + " " + unit);
-              flash_background(success);
+              //flash_background(success);
             }
           } catch (err) {
             set_gambling_status("Something weird went wrong :/")
