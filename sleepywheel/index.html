@@ -347,6 +347,7 @@
   </div>
 
   <script>
+    const kContractABI = [{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":false,"internalType":"bool","name":"won","type":"bool"},{"indexed":false,"internalType":"uint256","name":"payout","type":"uint256"}],"name":"Result","type":"event"},{"inputs":[],"name":"deposit","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"getBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint8","name":"bet","type":"uint8"}],"name":"spin","outputs":[],"stateMutability":"payable","type":"function"}];
     const kChainProperties = {
       "Ethereum": {
         // chain:
@@ -397,9 +398,6 @@
     }
 
     let provider, signer;
-    const kSepoliaContractAddress = "TODO";
-    const kSomniaContractAddress = "0x3db94af19e1220f55969ac807276e17760db1f12";
-    const kContractABI = [{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"player","type":"address"},{"indexed":false,"internalType":"bool","name":"won","type":"bool"},{"indexed":false,"internalType":"uint256","name":"payout","type":"uint256"}],"name":"Result","type":"event"},{"inputs":[],"name":"deposit","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[],"name":"getBalance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint8","name":"bet","type":"uint8"}],"name":"spin","outputs":[],"stateMutability":"payable","type":"function"}];
 
     async function update_toggle() {
       const isChecked = document.getElementById('chainToggle').checked;
@@ -558,7 +556,6 @@
       provider.onerror = (err) => console.log("Error:", err);
       provider._subscribe("newHeads", ["newHeads"], (result) => {
         if (get_current_mode() === name) {
-          console.log("hash: " + result.hash + " -> " + ethers.BigNumber.from(result.hash).mod(37) + "\nparent hash: " + result.parentHash + " -> " + ethers.BigNumber.from(result.parentHash).mod(37) );
           const block_hash = ethers.BigNumber.from(result[chain_properties.websocketHashField]);
           const pocket = block_hash.mod(37).toNumber();
           const button = pocket_buttons[pocket];
